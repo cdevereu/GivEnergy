@@ -6,3 +6,5 @@ What you'll need to add/change:
 2. Your own GivEnergy API key which you can get from the GivEnergy web portal
 3. Your own cheap energy slot start and end times
 4. Your own logic to determine forecast vs charge level.  The default values are already input.
+
+I also run this flow as a paid service for those that don't want to, or don't have the skills to run it themselves. 
