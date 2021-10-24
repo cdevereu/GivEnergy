@@ -1,0 +1,814 @@
+[
+    {
+        "id": "5b05601c.ade48",
+        "type": "http request",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.forecast.solar/estimate/watthours/day/lat/long/angle/azimuth/capacity",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 390,
+        "y": 300,
+        "wires": [
+            [
+                "f68ce26e.18c89",
+                "11efedde.8077f2"
+            ]
+        ]
+    },
+    {
+        "id": "bf66e73e.dc5378",
+        "type": "inject",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 21 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 300,
+        "wires": [
+            [
+                "5b05601c.ade48"
+            ]
+        ]
+    },
+    {
+        "id": "7eedcf35.9d864",
+        "type": "comment",
+        "z": "7b2e4a17.e6e144",
+        "name": "Get tomorrows solar forecast and set battery charge",
+        "info": "",
+        "x": 290,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "f68ce26e.18c89",
+        "type": "json",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 550,
+        "y": 300,
+        "wires": [
+            [
+                "9e08702d.342a8"
+            ]
+        ]
+    },
+    {
+        "id": "9e08702d.342a8",
+        "type": "switch",
+        "z": "7b2e4a17.e6e144",
+        "name": "isSuccess?",
+        "property": "payload.message.type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "success",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 710,
+        "y": 300,
+        "wires": [
+            [
+                "3e0727b6.9c6878"
+            ],
+            [
+                "7ae21225.5285ec"
+            ]
+        ]
+    },
+    {
+        "id": "7ae21225.5285ec",
+        "type": "delay",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "3",
+        "timeoutUnits": "minutes",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 780,
+        "y": 360,
+        "wires": [
+            [
+                "a64b7f62.795be"
+            ]
+        ]
+    },
+    {
+        "id": "3e0727b6.9c6878",
+        "type": "moment",
+        "z": "7b2e4a17.e6e144",
+        "name": "Tomorrows Date",
+        "topic": "",
+        "input": "",
+        "inputType": "date",
+        "inTz": "Europe/London",
+        "adjAmount": "1",
+        "adjType": "days",
+        "adjDir": "add",
+        "format": "YYYY-MM-DD",
+        "locale": "en-GB",
+        "output": "date",
+        "outputType": "msg",
+        "outTz": "Europe/London",
+        "x": 940,
+        "y": 220,
+        "wires": [
+            [
+                "a0cb4bc8.bbecf8"
+            ]
+        ]
+    },
+    {
+        "id": "a0cb4bc8.bbecf8",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "forecast",
+                "pt": "msg",
+                "to": "payload.result[msg.date]",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1150,
+        "y": 220,
+        "wires": [
+            [
+                "8be8503a.98135"
+            ]
+        ]
+    },
+    {
+        "id": "8be8503a.98135",
+        "type": "switch",
+        "z": "7b2e4a17.e6e144",
+        "name": "Valid forecast?",
+        "property": "forecast",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 200,
+        "y": 480,
+        "wires": [
+            [
+                "5aedbfd7.ec9ad",
+                "8c523a60.381088",
+                "3d742496.bc718c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "5aedbfd7.ec9ad",
+        "type": "switch",
+        "z": "7b2e4a17.e6e144",
+        "name": "What is forecast?",
+        "property": "forecast",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "18000",
+                "vt": "num"
+            },
+            {
+                "t": "gte",
+                "v": "12000",
+                "vt": "num"
+            },
+            {
+                "t": "gte",
+                "v": "8000",
+                "vt": "num"
+            },
+            {
+                "t": "gte",
+                "v": "5000",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 5,
+        "x": 590,
+        "y": 480,
+        "wires": [
+            [
+                "97b86488.1bad78"
+            ],
+            [
+                "a15b4e79.ff58d"
+            ],
+            [
+                "753af226.99994c"
+            ],
+            [
+                "d7c885da.492388"
+            ],
+            [
+                "c766e54e.92cc58"
+            ]
+        ]
+    },
+    {
+        "id": "c766e54e.92cc58",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set Charge to 100%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "givenergy.chargeToPercent",
+                "pt": "msg",
+                "to": "100",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 880,
+        "y": 580,
+        "wires": [
+            [
+                "850b82cf.8dbe9"
+            ]
+        ]
+    },
+    {
+        "id": "a15b4e79.ff58d",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set Charge to 60%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "givenergy.chargeToPercent",
+                "pt": "msg",
+                "to": "60",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 870,
+        "y": 460,
+        "wires": [
+            [
+                "850b82cf.8dbe9"
+            ]
+        ]
+    },
+    {
+        "id": "753af226.99994c",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set Charge to 70%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "givenergy.chargeToPercent",
+                "pt": "msg",
+                "to": "70",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 870,
+        "y": 500,
+        "wires": [
+            [
+                "850b82cf.8dbe9"
+            ]
+        ]
+    },
+    {
+        "id": "97b86488.1bad78",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set Charge to 50%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "givenergy.chargeToPercent",
+                "pt": "msg",
+                "to": "50",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 870,
+        "y": 420,
+        "wires": [
+            [
+                "850b82cf.8dbe9"
+            ]
+        ]
+    },
+    {
+        "id": "850b82cf.8dbe9",
+        "type": "join",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "mode": "custom",
+        "build": "merged",
+        "property": "givenergy",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "4",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1210,
+        "y": 540,
+        "wires": [
+            [
+                "a6bc0da4.eb6bc"
+            ]
+        ]
+    },
+    {
+        "id": "f8a71e4d.7ec6f",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set API Key",
+        "rules": [
+            {
+                "t": "set",
+                "p": "apiKey",
+                "pt": "msg",
+                "to": "<GIVENERGY API KEY>",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 450,
+        "y": 880,
+        "wires": [
+            [
+                "fe75a3f9.eef69"
+            ]
+        ]
+    },
+    {
+        "id": "8c523a60.381088",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set AC charge Enable",
+        "rules": [
+            {
+                "t": "set",
+                "p": "givenergy.enable",
+                "pt": "msg",
+                "to": "true",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 880,
+        "y": 640,
+        "wires": [
+            [
+                "850b82cf.8dbe9"
+            ]
+        ]
+    },
+    {
+        "id": "a6bc0da4.eb6bc",
+        "type": "json",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "property": "givenergy",
+        "action": "str",
+        "pretty": false,
+        "x": 1310,
+        "y": 640,
+        "wires": [
+            [
+                "f8a71e4d.7ec6f"
+            ]
+        ]
+    },
+    {
+        "id": "5b67e8e3.b82c98",
+        "type": "http request",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.givenergy.cloud/chargeBattery",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 1070,
+        "y": 880,
+        "wires": [
+            [
+                "95e52937.982fb8"
+            ]
+        ]
+    },
+    {
+        "id": "e93104b3.e01748",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "givenergy",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 880,
+        "y": 880,
+        "wires": [
+            [
+                "5b67e8e3.b82c98"
+            ]
+        ]
+    },
+    {
+        "id": "fe75a3f9.eef69",
+        "type": "function",
+        "z": "7b2e4a17.e6e144",
+        "name": "Add Auth Headers",
+        "func": "\nmsg.headers = {};\nmsg.headers['Authorization'] = msg.apiKey;\nmsg.headers['Content-Type'] = 'application/json';\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 880,
+        "wires": [
+            [
+                "e93104b3.e01748"
+            ]
+        ]
+    },
+    {
+        "id": "a64b7f62.795be",
+        "type": "time-range-switch",
+        "z": "7b2e4a17.e6e144",
+        "name": "Between 9pm and 11pm",
+        "lat": "",
+        "lon": "",
+        "startTime": "21:00",
+        "endTime": "23:00",
+        "startOffset": 0,
+        "endOffset": 0,
+        "x": 990,
+        "y": 360,
+        "wires": [
+            [
+                "5b05601c.ade48"
+            ],
+            [
+                "8ffbd1af.fa463"
+            ]
+        ]
+    },
+    {
+        "id": "8ffbd1af.fa463",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Solar.forecast too many failed retires",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Solar Forcecast API request for tomorrow failed Check battery charge times and amount",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1310,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d7c885da.492388",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set Charge to 90%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "givenergy.chargeToPercent",
+                "pt": "msg",
+                "to": "90",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 870,
+        "y": 540,
+        "wires": [
+            [
+                "850b82cf.8dbe9"
+            ]
+        ]
+    },
+    {
+        "id": "7e0d6d41.020164",
+        "type": "function",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "func": "\nmsg.payload = \"Battery charge set to \" + msg.payload.chargeUpTo + \"% starting at \" + msg.payload.chargeScheduleStart + \" with a predicated solar generation of \" + msg.forecast/1000 + \"kWh.\"\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1660,
+        "y": 860,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "330600e1.cbcb",
+        "type": "switch",
+        "z": "7b2e4a17.e6e144",
+        "name": "Successfully Set GivEnergy?",
+        "property": "payload.chargeUpTo",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1440,
+        "y": 880,
+        "wires": [
+            [
+                "7e0d6d41.020164"
+            ],
+            [
+                "5a56d0c0.e063a"
+            ]
+        ]
+    },
+    {
+        "id": "95e52937.982fb8",
+        "type": "json",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 1230,
+        "y": 880,
+        "wires": [
+            [
+                "330600e1.cbcb"
+            ]
+        ]
+    },
+    {
+        "id": "5a56d0c0.e063a",
+        "type": "function",
+        "z": "7b2e4a17.e6e144",
+        "name": "",
+        "func": "\nmsg.payload = \"Problem setting GivEnergy charge for tonight.  Try manual.  Forecast is: \" + msg.forecast/1000\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1660,
+        "y": 900,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "11efedde.8077f2",
+        "type": "switch",
+        "z": "7b2e4a17.e6e144",
+        "name": "Empty payload?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "empty"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 580,
+        "y": 360,
+        "wires": [
+            [
+                "7ae21225.5285ec"
+            ]
+        ]
+    },
+    {
+        "id": "3756fb11.a4fcf4",
+        "type": "comment",
+        "z": "7b2e4a17.e6e144",
+        "name": "URL Documentation",
+        "info": "See here to understand the parameters needed in the request URL\n\nhttp://doc.forecast.solar/doku.php?id=api:estimate\n\nNo need for an API key for forecast.solar is \nusing the public service.",
+        "x": 370,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "a98417d1.3901d8",
+        "type": "comment",
+        "z": "7b2e4a17.e6e144",
+        "name": "Send error message to Telegram etc",
+        "info": "",
+        "x": 1620,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "3d742496.bc718c",
+        "type": "change",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set Charge Start Time 21:31",
+        "rules": [
+            {
+                "t": "set",
+                "p": "givenergy.start",
+                "pt": "msg",
+                "to": "2131",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "givenergy.finish",
+                "pt": "msg",
+                "to": "0229",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 900,
+        "y": 680,
+        "wires": [
+            [
+                "850b82cf.8dbe9"
+            ]
+        ]
+    },
+    {
+        "id": "35b8c543.87ec6a",
+        "type": "comment",
+        "z": "7b2e4a17.e6e144",
+        "name": "Add GivEnergy API Key",
+        "info": "",
+        "x": 420,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "b4445dda.60b7f",
+        "type": "comment",
+        "z": "7b2e4a17.e6e144",
+        "name": "Send confirmation/error message to Telegram etc",
+        "info": "",
+        "x": 1930,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "b0db18ca.563c98",
+        "type": "comment",
+        "z": "7b2e4a17.e6e144",
+        "name": "Charge % Logic",
+        "info": "Add and tweak your own values here to charge\nas much or as little as you need.",
+        "x": 600,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "a92b69cf.356908",
+        "type": "comment",
+        "z": "7b2e4a17.e6e144",
+        "name": "Set cheap times",
+        "info": "Set your cheap electricity times here\n\nMine run from 21:30 so set 2130\n\nExample: 02:30 = 0230",
+        "x": 860,
+        "y": 720,
+        "wires": []
+    }
+]
