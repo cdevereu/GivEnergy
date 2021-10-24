@@ -8,3 +8,5 @@ What you'll need to add/change:
 4. Your own logic to determine forecast vs charge level.  My default values are already input.
 
 I also run this flow as a paid service for those that don't want to, or don't have the skills/hardware to run it themselves.  Drop me an email for more details (see my GitHub profile)
+
+* Copy the json file contents and IMPORT into Node-RED > Burger Menu > Import > Ctl-V
